@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delivery Prediction API | M516 Business Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='logistics-customer-portal-2.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        .login {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+        }
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 8px;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            border-color: #e74c3c;
+            outline: none;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            font-size: 0.95em;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <h1>Predict Order Delay</h1>
+        <form action="{{ url_for('predict') }}" method="post">
+                <input type="number" name="sales_per_customer" step="any" placeholder="Sales per Customer" required />
+                <input type="number" name="latitude" step="any" placeholder="Latitude" required />
+                <input type="number" name="longitude" step="any" placeholder="Longitude" required />
+                <input type="number" name="order_item_discount" step="any" placeholder="Order Item Discount" required />
+                <input type="number" name="order_item_discount_rate" step="any" placeholder="Discount Rate" required />
+                <input type="number" name="order_item_profit_ratio" step="any" placeholder="Profit Ratio" required />
+                <input type="number" name="order_item_quantity" placeholder="Quantity" required />
+                <input type="number" name="order_profit_per_order" step="any" placeholder="Profit per Order" required />
+                <input type="number" name="shipping_delay_days" placeholder="Shipping Delay (days)" required />
+
+            <select name="payment_type" required>
+              <option value="DEBIT">DEBIT</option>
+              <option value="TRANSFER">TRANSFER</option>
+              <option value="CASH">CASH</option>
+              <option value="CREDIT">CREDIT</option>
+            </select>
+
+            <select name="shipping_mode" required>
+              <option value="First Class">First Class</option>
+              <option value="Second Class">Second Class</option>
+              <option value="Standard Class">Standard Class</option>
+              <option value="Same Day">Same Day</option>
+            </select>
+
+
+
+
+            <button type="submit" class="btn-primary">Predict</button>
+        </form>
+
+        {% if prediction %}
+             <h2 style="
+                color: {% if prediction == 'Delayed' %}red
+                       {% elif prediction == 'Pending / Unknown' %}orange
+                       {% else %}green{% endif %};">
+                Prediction Result: {{ prediction }}
+             </h2>
+        {% endif %}
+    </div>
+</body>
+</html>
