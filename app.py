@@ -1,15 +1,49 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import joblib
+from typing import Optional  # for Optional[float] type hints
 
 app = Flask(__name__)
 
 # Load the trained pipeline
 model = joblib.load("ml_model.pkl")
 
+# Decision thresholds
+DELAY_THRESHOLD = 0.6      # >= 0.6 => Delayed
+PENDING_LOWER = 0.4        # (0.4, 0.6) => Pending / Unknown band
+
+
+def classify(prediction: int, delay_prob: Optional[float]) -> str:
+    """
+    Returns one of: "Delayed", "Pending / Unknown", "On Time"
+    1. If model gives -1, preserve uncertainty.
+    2. If we have delay probability, use thresholds to refine the class.
+    3. If no probability is available, fall back to class label only.
+    """
+    # Preserve explicit unknown from model
+    if prediction == -1:
+        return "Pending / Unknown"
+
+    # If probability is available, use it for three-way classification
+    if delay_prob is not None:
+        if delay_prob >= DELAY_THRESHOLD:
+            return "Delayed"
+        elif PENDING_LOWER < delay_prob < DELAY_THRESHOLD:
+            return "Pending / Unknown"
+        else:
+            return "On Time"
+
+    # Fallback when predict_proba is unavailable
+    if prediction == 1:
+        return "Delayed"
+    else:
+        return "On Time"
+
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -42,40 +76,25 @@ def predict():
             "shipping_mode": shipping_mode
         }])
 
-        # Predict
+        # Predict class
         prediction = model.predict(input_data)[0]
 
-        result = None
+        # Predict probability if available
+        delay_prob: Optional[float] = None
         if hasattr(model, "predict_proba"):
             proba = model.predict_proba(input_data)[0]
-            delay_prob = proba[1]  # probability of class 1 (Delayed)
+            delay_prob = float(proba[1])  # probability of class 1 (Delayed)
+            print(f"DEBUG: prediction={prediction} delay_prob={delay_prob} proba={proba}")
 
-            # Debug prints (check terminal logs)
-            print("DEBUG: prediction =", prediction)
-            print("DEBUG: probabilities =", proba)
-
-            # Decision logic
-            if prediction == 1:
-                if delay_prob >= 0.6:
-                    result = "Delayed"
-                else:
-                    result = "On Time"
-            elif prediction == -1:
-                result = "Pending / Unknown"
-            else:
-                result = "On Time"
-        else:
-            if prediction == 1:
-                result = "Delayed"
-            elif prediction == -1:
-                result = "Pending / Unknown"
-            else:
-                result = "On Time"
+        # Apply corrected three-way classification (works with or without probability)
+        result = classify(prediction, delay_prob)
 
     except Exception as e:
         result = f"Error: {str(e)}"
 
+    # Frontend result
     return render_template("index.html", prediction=result)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
