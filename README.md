@@ -7,6 +7,8 @@ A Flask-based machine learning application that predicts whether an order will b
 https://deliverypredicitonproject.onrender.com/
 ## GitHub link 
 https://github.com/NithyeshSakthi/DeliveryPredicitonProject
+## Recording
+https://drive.google.com/drive/u/1/folders/1hwJmaQbl8T9k2RJKNf-E3RjqA--lQYtO
 
 ## Features
 - Web form built with Flask + HTML/CSS
@@ -26,6 +28,7 @@ Delivery_Prediciton_Project/
 ├── README.md                  # Project documentation
 ├── runtime.txt
 ├── Procfile
+├── Business_project_final_file.html  #Final report (please download and read)
 ├── static/
 │   ├── plots/				   # Saved visual graphs	
 │   ├── logistics-customer-portal-2.jpg #Background template logo
@@ -74,18 +77,6 @@ shipping_delay_days: (shipping_date - order_date) = 76 days
 payment_type: DEBIT
 shipping_mode: Second Class
 
-### prediction: unknown
-sales_per_customer: 250.0        
-latitude: 52.52                 
-longitude: 13.40                 
-order_item_discount: 15.0          
-order_item_discount_rate: 0.10     
-order_item_profit_ratio: 0.05      
-order_item_quantity: 3             
-order_profit_per_order: 12.5      
-shipping_delay_days: 2            
-payment_type: Credit Card     
-shipping_mode: Second Class
 
 #Sample Output
 ![ontimeScreenshot 2025-12-16 012611.png](docs/ontimeScreenshot%202025-12-16%20012611.png)
